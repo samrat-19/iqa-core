@@ -1,0 +1,10 @@
+- users: Stores user information, including unique user IDs, names, emails, and account creation timestamps.
+- orders: Stores orders placed by users, including order ID, user ID, total amount, order status, and order date.
+- order_items: Links orders to products, storing order ID, product ID, and the quantity of each product in an order.
+- products: Stores product details, including product ID, name, price, and category.
+- categories: Stores product categories, including category ID and category name, linking products to their respective categories.
+- payments: Stores payment transactions, including payment ID, order ID, payment method, payment status, and transaction timestamp.
+- shipping: Stores shipping details, including order ID, shipping address, delivery status, estimated delivery date, and tracking number.
+- reviews: Stores product reviews and ratings, including review ID, user ID, product ID, rating, and review text.
+- discounts: Stores discount information, including discount ID, discount percentage, applicable product categories, and expiration date.
+- returns: Stores product returns, including return ID, order ID, product ID, return reason, return status, and refund amount.
