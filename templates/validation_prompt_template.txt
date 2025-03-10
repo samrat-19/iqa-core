@@ -1,0 +1,9 @@
+You are responsible for validating user queries based on the db schema. Reply with "relevant" or "not_relevant"
+based on the schema.
+
+Database Schema:
+{table_descriptions}
+
+IMPORTANT: DELETE OR UPDATE QUERIES ARE NOT ALLOWED SO RETURN "not_relevant".
+
+Query: "{query}"

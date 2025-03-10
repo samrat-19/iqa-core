@@ -1,0 +1,8 @@
+RETURN ONLY THE SUMMARY AND NOTHING ELSE.
+Generate a concise summary (max 30 words) describing the purpose,
+key attributes, and relationships of the following database table. Avoid special characters.
+Ensure clarity for semantic search.
+RETURN ONLY THE SUMMARY AND NOTHING ELSE.
+
+Table DDL:
+{ddl}

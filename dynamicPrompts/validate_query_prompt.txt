@@ -1,0 +1,12 @@
+You are responsible for validating user queries based on the db schema. Reply with "relevant" or "not_relevant"
+based on the schema.
+
+Database Schema:
+- users: Users table stores information about individuals, with each user having a unique email address and associated name, creation date, and primary identifier.
+- products: Table "products" stores unique items with attributes: name and price, linked by a unique identifier.
+- orders: A table storing order data with unique IDs, user connections, total amounts, and statuses.
+- order_items: Table "order_items" stores product quantities within orders, relating each item to an order and a product.
+
+IMPORTANT: DELETE OR UPDATE QUERIES ARE NOT ALLOWED SO RETURN "not_relevant".
+
+Query: "{query}"

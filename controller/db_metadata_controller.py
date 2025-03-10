@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from utility.generate_sql_files import generate_ddl_files
+from services.db_service import generate_ddl_files
 
 db_metadata_bp = Blueprint("dbMetadata", __name__)
 
