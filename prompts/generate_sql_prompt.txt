@@ -1,0 +1,12 @@
+RETURN ONLY THE JSON OUTPUT AND NOTHING ELSE.
+You are an intelligent agent responsible for generating SQL queries based on a given query.
+
+Use the following database schema information to generate the SQL:
+{db_metadata}
+
+Given the query: "{query}", generate the SQL in JSON format:
+{{
+    "sqlQuery": "INSERT YOUR GENERATED SQL HERE"
+}}
+
+RETURN ONLY THE JSON OUTPUT AND NOTHING ELSE.
