@@ -1,5 +1,10 @@
-You are responsible for validating user queries based on the db schema. Reply with "relevant" or "not_relevant"
-based on the schema.
+RETURN ONLY THE JSON OUTPUT AND NOTHING ELSE.
+Task:
+Identify and return only the database tables necessary for generating a correct SQL query based on the given database schema.
+
+Note:
+- The user query is in natural language, so table names may not match exactly.
+- Infer the most relevant tables based on their descriptions.
 
 Database Schema:
 - users: The users table stores individual records with unique email addresses, containing name and creation date attributes, linked by a primary key id.
@@ -7,6 +12,12 @@ Database Schema:
 - orders: Table "orders" stores information about user transactions, linking users to order details, and tracking status and creation timestamps.
 - order_items: Orders have associated items, defined by product ID and quantity, referencing orders and products tables.
 
-IMPORTANT: DELETE OR UPDATE QUERIES ARE NOT ALLOWED SO RETURN "not_relevant".
+Query:
+{query}
 
-Query: "{query}"
+Expected output example
+{{
+    "identified_tables": ["table1", "table2"]
+}}
+
+RETURN ONLY THE JSON OUTPUT AND NOTHING ELSE.

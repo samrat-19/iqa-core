@@ -3,8 +3,8 @@ from services.prompt_runner import call_llm_for_insights, call_llm_for_sql, call
 
 user_query_bp = Blueprint("userQuery", __name__)
 
-@user_query_bp.route('/answer', methods=['POST'])
-def answer_query():
+@user_query_bp.route('/query-insights', methods=['POST'])
+def query_insights():
     try:
         data = request.get_json()
         query = data.get("query", "")

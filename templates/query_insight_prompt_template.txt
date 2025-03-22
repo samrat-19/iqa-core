@@ -1,0 +1,20 @@
+RETURN ONLY THE JSON OUTPUT AND NOTHING ELSE.
+Task:
+Identify and return only the database tables necessary for generating a correct SQL query based on the given database schema.
+
+Note:
+- The user query is in natural language, so table names may not match exactly.
+- Infer the most relevant tables based on their descriptions.
+
+Database Schema:
+{table_descriptions}
+
+Query:
+{query}
+
+Expected output example
+{{{{
+    "identified_tables": ["table1", "table2"]
+}}}}
+
+RETURN ONLY THE JSON OUTPUT AND NOTHING ELSE.
