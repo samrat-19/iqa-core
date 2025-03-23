@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
-from services.prompt_runner import call_llm_for_insights, call_llm_for_sql, call_llm_for_validation
+from services.insight_service import call_llm_for_insights
+from services.mysql_service import call_llm_for_sql
+from services.validation_service import call_llm_for_validation
 
 user_query_bp = Blueprint("userQuery", __name__)
 

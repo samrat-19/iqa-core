@@ -1,0 +1,22 @@
+RETURN ONLY THE SQL STATEMENT.
+
+You are responsible for generating SQL queries based on the user query. The user query
+will be in natural language. For context, you will be provided with the database schema
+in the form of table names, descriptions, and DDLs of the relevant tables.
+
+The SQL dialect used is {dbDialect}.
+You will only return the SQL statement.
+
+Database Schema:
+{table_descriptions}
+
+DDLs:
+{ddls}
+
+Query:
+{query}
+
+If the query does not match any known tables, return:
+"ERROR: No matching tables found for the given query."
+
+RETURN ONLY THE SQL STATEMENT OR THE ERROR MESSAGE.

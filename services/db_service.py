@@ -1,9 +1,6 @@
 import os
-import requests
-from flask import jsonify
 from sqlalchemy import create_engine, text
-from services.prompt_runner import call_llm_for_description
-
+from services.llm_service import call_llm
 
 # Constants
 template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -67,5 +64,13 @@ def generate_table_description_metadata():
 
     except Exception as e:
         raise Exception(f"Error generating table descriptions: {str(e)}")
+
+def call_llm_for_description(ddl, summary_prompt_path):
+    """Calls the LLM API to generate a table description from DDL."""
+    with open(summary_prompt_path, "r") as file:
+        prompt_template = file.read()
+
+    prompt = prompt_template.replace("{ddl}", ddl)
+    return call_llm(prompt)
 
 

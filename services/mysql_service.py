@@ -1,0 +1,72 @@
+import os
+import json
+from services.llm_service import call_llm
+from services.insight_service import call_llm_for_insights
+
+template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+ddls_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ddls")
+metadata_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "metadata/tables")
+
+sql_prompt_template_path = os.path.join(template_dir, "generate_sql_prompt_template.txt")
+table_desc_path = os.path.join(metadata_dir, "table_descriptions.txt")
+
+DIALECT = "MySQL"  # Hardcoded dialect for now
+
+
+def call_llm_for_sql(query):
+    """Calls the LLM API to generate SQL from the query."""
+    prompt = generate_sql_prompt(query)
+    response = call_llm(prompt)
+    return response
+
+def generate_sql_prompt(query):
+    """Generates an SQL prompt dynamically based on identified tables, descriptions, and DDLs."""
+    try:
+        # Extract identified tables from LLM insights
+        result = call_llm_for_insights(query)
+        identified_tables = result.get("identified_tables", [])
+
+        # Fetch relevant DDLs and descriptions
+        ddls = fetch_table_ddls(identified_tables)
+        table_descriptions = fetch_table_descriptions(identified_tables)
+
+        # Read SQL prompt template
+        with open(sql_prompt_template_path, "r") as file:
+            sql_generator_prompt_template = file.read()
+
+        # Format final prompt dynamically
+        final_prompt = sql_generator_prompt_template.format(
+            table_descriptions=table_descriptions,
+            ddls=ddls,
+            dbDialect=DIALECT,  # Hardcoded dialect
+            query=query
+        )
+
+        return final_prompt
+    except Exception as e:
+        return {"error": str(e)}
+
+def fetch_table_ddls(identified_tables):
+    """Fetches DDLs for identified tables from the ddls directory."""
+    ddls = []
+    for table in identified_tables:
+        ddl_path = os.path.join(ddls_dir, f"{table}.sql")
+        if os.path.exists(ddl_path):
+            with open(ddl_path, "r") as file:
+                ddls.append(file.read())
+    return "\n".join(ddls)
+
+def fetch_table_descriptions(identified_tables):
+    """Fetches table descriptions for identified tables."""
+    if not os.path.exists(table_desc_path):
+        return ""
+
+    with open(table_desc_path, "r") as file:
+        all_descriptions = file.read()
+
+    # Extract descriptions relevant to identified tables
+    descriptions = [
+        desc for table in identified_tables for desc in all_descriptions.split("\n") if table in desc
+    ]
+
+    return "\n".join(descriptions)

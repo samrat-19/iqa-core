@@ -2,9 +2,6 @@ from flask import Blueprint, request, jsonify
 import os
 from services.db_service import generate_ddl_files,generate_table_description_metadata
 
-
-
-
 db_metadata_bp = Blueprint("dbMetadata", __name__)
 
 @db_metadata_bp.route("/extract-ddls", methods=["POST"])

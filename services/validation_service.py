@@ -1,4 +1,6 @@
 import os
+from services.prompt_loader import load_prompt_for_validation
+from services.llm_service import call_llm
 
 # Paths
 metadata_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "metadata/tables")
@@ -35,3 +37,13 @@ def generate_validation_prompt():
 
     except Exception as e:
         return {"error": str(e)}
+
+def generate_sql_validaation_prompt(query):
+    base_prompt = load_prompt_for_validation()
+    formatted_prompt = base_prompt.format(query=query)
+    return formatted_prompt
+
+def call_llm_for_validation(query):
+    """Calls the LLM API to validate SQL."""
+    prompt = generate_sql_validaation_prompt(query)
+    return call_llm(prompt)

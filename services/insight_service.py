@@ -1,4 +1,7 @@
 import os
+import json
+from services.llm_service import call_llm
+from services.prompt_loader import load_prompt_for_keywords_extraction
 
 template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 dynamic_prompt_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dynamicPrompts")
@@ -36,3 +39,14 @@ def generate_insight_prompt():
         return {"message": "Insight prompt generated successfully."}
     except Exception as e:
         return {"error": str(e)}
+
+def generate_insights_extraction_prompt(query):
+    base_prompt = load_prompt_for_keywords_extraction()
+    formatted_prompt = base_prompt.format(query=query)
+    return formatted_prompt
+
+def call_llm_for_insights(query):
+    """Calls the LLM API to extract insights from the query."""
+    prompt = generate_insights_extraction_prompt(query)
+    response = call_llm(prompt)
+    return json.loads(response) if response else {}
