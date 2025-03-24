@@ -1,4 +1,5 @@
 import os
+import re
 from services.prompt_loader import load_prompt_for_validation
 from services.llm_service import call_llm
 
@@ -43,7 +44,15 @@ def generate_sql_validaation_prompt(query):
     formatted_prompt = base_prompt.format(query=query)
     return formatted_prompt
 
-def call_llm_for_validation(query):
-    """Calls the LLM API to validate SQL."""
-    prompt = generate_sql_validaation_prompt(query)
-    return call_llm(prompt)
+
+def call_llm_for_validation(query, max_retries=3):
+    """Calls the LLM API to validate SQL, ensuring a single-word response."""
+
+    for _ in range(max_retries):
+        prompt = generate_sql_validaation_prompt(query)
+        res = call_llm(prompt)
+
+        if res and re.match(r"^\w+$", res.strip()):
+            return res
+
+    return "Validation failed"

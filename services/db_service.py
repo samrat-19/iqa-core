@@ -11,10 +11,22 @@ os.makedirs(metadata_dir, exist_ok=True)
 # Define metadata directory
 summary_prompt_path = os.path.join(template_dir, "table_summary_prompt_template.txt")
 
+# Global variable to store DB credentials
+DB_CREDENTIALS = {}
+
 
 def generate_ddl_files(host, port, database, username, password):
+    """Generates DDL files and stores DB credentials for later use."""
+
+    DB_CREDENTIALS.update({
+        "host": host,
+        "port": port,
+        "database": database,
+        "username": username,
+        "password": password
+    })
+
     # Construct the correct SQLAlchemy MySQL URL
-    # Only supporting MySQL for the demo
     db_url = f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}"
 
     # Create the SQLAlchemy engine

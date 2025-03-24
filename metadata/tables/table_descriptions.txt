@@ -1,4 +1,0 @@
-- users: The users table stores individual records with unique email addresses, containing name and creation date attributes, linked by a primary key id.
-- products: A database table containing product information with a unique identifier and attributes for name and price.
-- orders: Table "orders" stores information about user transactions, linking users to order details, and tracking status and creation timestamps.
-- order_items: Orders have associated items, defined by product ID and quantity, referencing orders and products tables.

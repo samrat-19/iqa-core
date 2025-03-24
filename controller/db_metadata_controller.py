@@ -4,6 +4,9 @@ from services.db_service import generate_ddl_files,generate_table_description_me
 
 db_metadata_bp = Blueprint("dbMetadata", __name__)
 
+# Global variable to store the latest DB credentials
+DB_CREDENTIALS = {}
+
 @db_metadata_bp.route("/extract-ddls", methods=["POST"])
 def extract_ddls():
     """Handles the request to extract and save table DDLs from a MySQL database."""

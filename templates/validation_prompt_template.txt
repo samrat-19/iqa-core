@@ -1,4 +1,5 @@
-You are responsible for validating user queries based on the db schema. Reply with "relevant" or "not_relevant"
+REPLY ONLY WITH ONE WORD
+You are responsible for validating user queries based on the db schema. Reply strictly with only 1 word "relevant" or "not_relevant"
 based on the schema.
 
 Database Schema:
@@ -7,3 +8,4 @@ Database Schema:
 IMPORTANT: DELETE OR UPDATE QUERIES ARE NOT ALLOWED SO RETURN "not_relevant".
 
 Query: "{query}"
+REPLY ONLY WITH ONE WORD

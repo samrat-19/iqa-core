@@ -1,23 +1,59 @@
 import os
-import json
+import sqlparse
+
+from sqlalchemy import create_engine, text
+from services.db_service import DB_CREDENTIALS
 from services.llm_service import call_llm
 from services.insight_service import call_llm_for_insights
 
 template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 ddls_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ddls")
 metadata_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "metadata/tables")
-
 sql_prompt_template_path = os.path.join(template_dir, "generate_sql_prompt_template.txt")
 table_desc_path = os.path.join(metadata_dir, "table_descriptions.txt")
-
 DIALECT = "MySQL"  # Hardcoded dialect for now
 
 
 def call_llm_for_sql(query):
     """Calls the LLM API to generate SQL from the query."""
     prompt = generate_sql_prompt(query)
-    response = call_llm(prompt)
-    return response
+    generated_sql = call_llm(prompt)  # Assuming this returns a valid SQL string
+
+    parsed = sqlparse.parse(generated_sql)
+    print("Parsed Successfully:", bool(parsed))
+
+    # Extract SQL as string (first statement in parsed list)
+    sql_statement = str(parsed[0]) if parsed else generated_sql  # Fallback to raw SQL
+
+    # Check for non-SELECT queries
+    if parsed and parsed[0].get_type().upper() != "SELECT":
+        return "Restricted action. Your name has been logged in the system"
+
+    result = execute_sql(sql_statement)
+    print("Execution Result:", result)
+    return generated_sql
+
+
+def execute_sql(sql_statement):
+    """Executes the SQL statement on the actual database using stored credentials."""
+    try:
+        if not DB_CREDENTIALS:
+            return {"success": False, "error": "Database credentials not found. Please generate DDL files first."}
+
+        # Construct DB connection URL from stored credentials
+        db_url = f"mysql+pymysql://{DB_CREDENTIALS['username']}:{DB_CREDENTIALS['password']}@" \
+                 f"{DB_CREDENTIALS['host']}:{DB_CREDENTIALS['port']}/{DB_CREDENTIALS['database']}"
+
+        # Create a new SQLAlchemy engine for executing queries
+        engine = create_engine(db_url)
+
+        with engine.connect() as connection:
+            result = connection.execute(text(sql_statement))
+            fetched_data = result.fetchall()  # Fetch results
+
+        return {"success": True, "result": [row._asdict() for row in fetched_data]}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 def generate_sql_prompt(query):
     """Generates an SQL prompt dynamically based on identified tables, descriptions, and DDLs."""
