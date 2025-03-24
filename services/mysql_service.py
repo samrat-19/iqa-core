@@ -26,8 +26,8 @@ def call_llm_for_sql(query):
     sql_statement = str(parsed[0]) if parsed else generated_sql  # Fallback to raw SQL
 
     # Check for non-SELECT queries
-    if parsed and parsed[0].get_type().upper() != "SELECT":
-        return "Restricted action. Your name has been logged in the system"
+    # if parsed and parsed[0].get_type().upper() != "SELECT":
+    #     return "Restricted action. Your name has been logged in the system"
 
     result = execute_sql(sql_statement)
     print("Execution Result:", result)
