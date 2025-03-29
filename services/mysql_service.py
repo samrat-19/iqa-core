@@ -25,12 +25,15 @@ def call_llm_for_sql(query):
     # Extract SQL as string (first statement in parsed list)
     sql_statement = str(parsed[0]) if parsed else generated_sql  # Fallback to raw SQL
 
+    if not is_safe(sql_statement):
+        return "Restricted action. Your name has been logged in the system"
+
     # Check for non-SELECT queries
     # if parsed and parsed[0].get_type().upper() != "SELECT":
     #     return "Restricted action. Your name has been logged in the system"
 
     result = execute_sql(sql_statement)
-    print("Execution Result:", result)
+    print("Execution Result:", result.get("result"))
     return generated_sql
 
 
@@ -106,3 +109,18 @@ def fetch_table_descriptions(identified_tables):
     ]
 
     return "\n".join(descriptions)
+
+def is_safe(sql):
+    parsed = sqlparse.parse(sql)
+    if not parsed:
+        return False  # Invalid SQL
+
+    # Check every statement in the parsed SQL
+    for stmt in parsed:
+        stmt_type = stmt.get_type()
+
+        # If any statement is not SELECT, immediately return False
+        if stmt_type != "SELECT":
+            return False
+
+    return True  # If all statements are SELECT, allow execution
