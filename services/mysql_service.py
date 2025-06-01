@@ -5,12 +5,15 @@ from sqlalchemy import create_engine, text
 from services.db_service import DB_CREDENTIALS
 from services.llm_service import call_llm
 from services.insight_service import call_llm_for_insights
+from services.semantic_search import get_faiss_index, get_top_k_similar_tables
+from services.enrich_service import enrich_user_query
 
 template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 ddls_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ddls")
 metadata_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "metadata/tables")
 sql_prompt_template_path = os.path.join(template_dir, "generate_sql_prompt_template.txt")
 table_desc_path = os.path.join(metadata_dir, "table_descriptions.txt")
+table_embeddings_path = os.path.join(metadata_dir, "table_embeddings.json")
 DIALECT = "MySQL"  # Hardcoded dialect for now
 
 
@@ -58,6 +61,7 @@ def execute_sql(sql_statement):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+
 def generate_sql_prompt(query):
     """Generates an SQL prompt dynamically based on identified tables, descriptions, and DDLs."""
     try:
@@ -85,6 +89,37 @@ def generate_sql_prompt(query):
     except Exception as e:
         return {"error": str(e)}
 
+
+def generate_sql_prompt_v2(query, k=5):
+    index, table_names, summaries = get_faiss_index()
+    """Uses semantic search to find relevant tables and builds SQL generation prompt."""
+    try:
+        enriched_query = enrich_user_query(query)
+        print("Enriched Query: ", enriched_query)
+        top_k_indices = get_top_k_similar_tables(enriched_query, index, summaries, k=k)
+        identified_tables = [table_names[i] for i in top_k_indices]
+        print("🧠 Identified tables from semantic search:", identified_tables)
+        # Fetch relevant DDLs and descriptions
+        ddls = fetch_table_ddls(identified_tables)
+        table_descriptions = fetch_table_descriptions(identified_tables)
+
+        # Read prompt template
+        with open(sql_prompt_template_path, "r") as file:
+            sql_generator_prompt_template = file.read()
+
+        # Format the prompt
+        final_prompt = sql_generator_prompt_template.format(
+            table_descriptions=table_descriptions,
+            ddls=ddls,
+            dbDialect=DIALECT,
+            query=query
+        )
+
+        return final_prompt
+    except Exception as e:
+        return {"error": str(e)}
+
+
 def fetch_table_ddls(identified_tables):
     """Fetches DDLs for identified tables from the ddls directory."""
     ddls = []
@@ -94,6 +129,7 @@ def fetch_table_ddls(identified_tables):
             with open(ddl_path, "r") as file:
                 ddls.append(file.read())
     return "\n".join(ddls)
+
 
 def fetch_table_descriptions(identified_tables):
     """Fetches table descriptions for identified tables."""
@@ -109,6 +145,7 @@ def fetch_table_descriptions(identified_tables):
     ]
 
     return "\n".join(descriptions)
+
 
 def is_safe(sql):
     parsed = sqlparse.parse(sql)

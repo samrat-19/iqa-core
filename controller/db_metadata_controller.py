@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 import os
-from services.db_service import generate_ddl_files,generate_table_description_metadata
+from services.db_service import generate_ddl_files, generate_db_metadata
 
 db_metadata_bp = Blueprint("dbMetadata", __name__)
 
@@ -31,11 +31,11 @@ def extract_ddls():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@db_metadata_bp.route("/generate-table-desc-metadata", methods=["POST"])
-def generate_table_desc_metadata():
+@db_metadata_bp.route("/generate-metadata", methods=["POST"])
+def generate_metadata():
     """Generates and saves table descriptions in the metadata directory."""
     try:
-        generate_table_description_metadata()
-        return jsonify({"message": "Table description metadata generated successfully"}), 200
+        generate_db_metadata()
+        return jsonify({"message": "Table metadata generated successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

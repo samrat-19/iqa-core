@@ -1,6 +1,7 @@
 import os
+import json
 from sqlalchemy import create_engine, text
-from services.llm_service import call_llm
+from services.llm_service import call_llm, call_embedding
 
 # Constants
 template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -52,12 +53,14 @@ def generate_ddl_files(host, port, database, username, password):
 
     print(f"Generated DDL files for {len(tables)} tables in {ddls_dir}")
 
-def generate_table_description_metadata():
-    """Extracts table descriptions from DDLs and stores them in a metadata file."""
-    try:
-        table_descriptions = []
 
-        os.makedirs(metadata_dir, exist_ok=True)  # Ensure metadata directory exists
+def generate_db_metadata():
+    """Generates table summaries and their embeddings from DDLs."""
+    try:
+        table_descriptions_txt = []
+        table_embeddings = []
+
+        os.makedirs(metadata_dir, exist_ok=True)
 
         for ddl_file in os.listdir(ddls_dir):
             if ddl_file.endswith(".sql"):
@@ -66,16 +69,33 @@ def generate_table_description_metadata():
 
                 table_name = ddl_file.replace(".sql", "")
                 table_summary = call_llm_for_description(ddl_content, summary_prompt_path)
+
                 if table_summary:
-                    table_descriptions.append(f"- {table_name}: {table_summary}")
+                    # Add to .txt version
+                    table_descriptions_txt.append(f"- {table_name}: {table_summary}")
 
-        table_desc_path = os.path.join(metadata_dir, "table_descriptions.txt")
+                    # Embed the summary
+                    embedding = call_embedding(table_summary)
+                    if embedding:
+                        table_embeddings.append({
+                            "table": table_name,
+                            "summary": table_summary,
+                            "embedding": embedding
+                        })
 
-        with open(table_desc_path, "w") as file:
-            file.write("\n".join(table_descriptions))
+        # Write to table_descriptions.txt
+        with open(os.path.join(metadata_dir, "table_descriptions.txt"), "w") as file:
+            file.write("\n".join(table_descriptions_txt))
+
+        # Write to table_embeddings.json
+        with open(os.path.join(metadata_dir, "table_embeddings.json"), "w") as file:
+            json.dump(table_embeddings, file, indent=2)
+
+        print("✅ Metadata generation complete.")
 
     except Exception as e:
-        raise Exception(f"Error generating table descriptions: {str(e)}")
+        raise Exception(f"❌ Error in generate_metadata: {str(e)}")
+
 
 def call_llm_for_description(ddl, summary_prompt_path):
     """Calls the LLM API to generate a table description from DDL."""
@@ -84,5 +104,3 @@ def call_llm_for_description(ddl, summary_prompt_path):
 
     prompt = prompt_template.replace("{ddl}", ddl)
     return call_llm(prompt)
-
-

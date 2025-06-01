@@ -1,0 +1,13 @@
+RETURN ONLY THE REWRITTEN NATURAL LANGUAGE QUERY. DO NOT GENERATE SQL.
+
+Given the following database schema descriptions and a poorly formed user query,
+rewrite the query in clearer English while preserving the original intent.
+Do not add any information not present in the user query. Do not infer or assume.
+
+Schema Descriptions:
+{descriptions}
+
+User Query:
+{query}
+
+Rewritten Query (clearer natural language, without adding complexity):
